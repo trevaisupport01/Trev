@@ -1,1644 +1,606 @@
-/* ==========================================================================
-   TREV AI MASTERCLASS - REFINED MASTER STYLESHEET
-   ========================================================================== */
-
-/* 1. RESET AND BASE STYLES */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-:root {
-  /* Monochrome + Accent Design Tokens */
-  --primary: #111111;
-  --secondary: #000000;
-  --accent: #F2B705;
-  --background: #ffffff;
-  --light: #fafafa;
-  --dark: #0a0a0a;
-  --text: #1a1a1a;
-  --text-muted: #6b6b6b;
-  --border: rgba(10, 10, 10, 0.14);
-  --border-dark: rgba(255, 255, 255, 0.14);
-  --white: #ffffff;
-
-  /* Typography */
-  --font-primary: 'Inter', sans-serif;
-  --font-secondary: 'Manrope', sans-serif;
-
-  /* Flat Design - Shadows Minimized */
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: 0 12px 24px rgba(10, 10, 10, 0.06);
-  --shadow-glass: none;
-
-  /* Borders & Radius */
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-full: 9999px;
-
-  /* Header Height */
-  --header-height: 80px;
-
-  /* Premium Easing Curves */
-  --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  --transition-bounce: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.1);
-}
-
-/* Scroll-Margin Correction to avoid sticky header overlap */
-section[id],
-#pricing,
-#faq,
-#contact {
-  scroll-margin-top: var(--header-height);
-}
-
-html {
-  font-family: var(--font-primary);
-  font-size: 16px;
-  color: var(--text);
-  background-color: var(--background);
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  overflow-x: hidden;
-  line-height: 1.6;
-}
-
-/* Skip Link Accessibility */
-.skip-link {
-  position: absolute;
-  top: -100px;
-  left: 10px;
-  background: var(--primary);
-  color: var(--white);
-  padding: 1rem;
-  z-index: 9999;
-  text-decoration: none;
-  font-weight: 600;
-  border-radius: var(--radius-sm);
-  transition: top 0.2s ease-in-out;
-}
-
-.skip-link:focus {
-  top: 10px;
-}
-
-/* Headings & Typography */
-h1, h2, h3, h4 {
-  font-family: var(--font-secondary);
-  font-weight: 800;
-  line-height: 1.2;
-  color: var(--dark);
-}
-
-h1 {
-  font-size: clamp(2.75rem, 6.5vw, 5.25rem);
-  letter-spacing: -0.04em;
-}
-
-h2 {
-  font-size: clamp(1.85rem, 4vw, 2.75rem);
-  letter-spacing: -0.02em;
-}
-
-h3 {
-  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
-  letter-spacing: -0.01em;
-}
-
-h4 {
-  font-size: 1.15rem;
-}
-
-p {
-  font-size: 1rem;
-  color: var(--text-muted);
-}
-
-a {
-  color: var(--primary);
-  text-decoration: none;
-  transition: var(--transition-smooth);
-}
-
-a:hover {
-  color: var(--secondary);
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  background: var(--light);
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: var(--radius-full);
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-/* ==========================================================================
-   2. REUSABLE UTILITIES
-   ========================================================================== */
-.container {
-  width: 90%;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.max-w-lg { max-width: 750px; }
-.max-w-md { max-width: 600px; }
-.mx-auto { margin-left: auto; margin-right: auto; }
-
-.py-lg { padding-top: 7rem; padding-bottom: 7rem; }
-.py-md { padding-top: 5rem; padding-bottom: 5rem; }
-.py-sm { padding-top: 2.5rem; padding-bottom: 2.5rem; }
-
-.mt-lg { margin-top: 3.5rem; }
-.mt-md { margin-top: 2.5rem; }
-.mt-sm { margin-top: 1.5rem; }
-.mt-xs { margin-top: 0.75rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-
-.text-center { text-align: center; }
-.text-white { color: var(--white); }
-.text-gray { color: var(--text-muted); }
-
-.bg-light { background-color: var(--light); }
-.bg-dark { background-color: var(--dark); }
-
-/* Flexible Grid Implementations */
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 3rem;
-  align-items: center;
-}
-
-.grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-}
-
-.grid-4 {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-}
-
-.align-stretch {
-  align-items: stretch;
-}
-
-.align-center {
-  align-items: center;
-}
-
-/* Premium Gradients */
-.text-gradient {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Design Badge */
-.section-tag {
-  display: inline-block;
-  font-family: var(--font-primary);
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--primary);
-  margin-bottom: 1rem;
-}
-
-.section-heading {
-  margin-bottom: 1rem;
-}
-
-.section-desc {
-  font-size: 1.125rem;
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.6;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-primary);
-  font-weight: 600;
-  font-size: 0.95rem;
-  padding: 0.85rem 1.75rem;
-  border-radius: var(--radius-full);
-  border: 1.5px solid transparent;
-  cursor: pointer;
-  transition: var(--transition-smooth);
-  gap: 0.65rem;
-}
-
-.btn-primary {
-  background-color: var(--dark);
-  color: var(--white);
-}
-
-.btn-primary:hover {
-  background-color: var(--accent);
-  color: var(--dark);
-  transform: translateY(-2px);
-}
-
-.btn-secondary {
-  background-color: var(--accent);
-  color: var(--dark);
-  border-color: var(--accent);
-}
-
-.btn-secondary:hover {
-  background-color: var(--dark);
-  color: var(--white);
-  border-color: var(--dark);
-  transform: translateY(-2px);
-}
-
-.btn-outline {
-  background-color: transparent;
-  border-color: var(--dark);
-  color: var(--dark);
-}
-
-.btn-outline:hover {
-  background-color: var(--dark);
-  color: var(--white);
-  transform: translateY(-2px);
-}
-
-.btn-sm {
-  padding: 0.55rem 1.35rem;
-  font-size: 0.85rem;
-}
-
-.btn-full {
-  width: 100%;
-}
-
-/* Active Keyboard Focus Rings */
-button:focus-visible,
-a:focus-visible,
-input:focus-visible,
-textarea:focus-visible {
-  outline: 3px solid var(--accent);
-  outline-offset: 2px;
-}
-
-/* Screen Readers Only */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
-
-/* ==========================================================================
-   3. STICKY HEADER NAVIGATION
-   ========================================================================== */
-.main-header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: var(--header-height);
-  background-color: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.4);
-  z-index: 1000;
-  transition: var(--transition-smooth);
-}
-
-.main-header.scrolled {
-  height: 70px;
-  box-shadow: var(--shadow-sm);
-  background-color: rgba(255, 255, 255, 0.95);
-}
-
-.header-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 100%;
-}
-
-.logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-secondary);
-  font-weight: 800;
-  font-size: 1.5rem;
-  color: var(--dark);
-}
-
-.logo-mark {
-  color: var(--dark);
-  flex-shrink: 0;
-}
-
-.logo-accent {
-  color: var(--primary);
-}
-
-.primary-nav {
-  display: flex;
-  align-items: center;
-  gap: 2.5rem;
-}
-
-.nav-links {
-  display: flex;
-  gap: 2rem;
-  list-style: none;
-}
-
-.nav-link {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  position: relative;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: -4px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: var(--primary);
-  transition: var(--transition-smooth);
-}
-
-.nav-link:hover::after,
-.nav-link.active::after {
-  width: 100%;
-}
-
-.nav-link:hover,
-.nav-link.active {
-  color: var(--primary);
-}
-
-.menu-toggle {
-  display: none;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 24px;
-  height: 18px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  z-index: 1001;
-}
-
-.menu-toggle .bar {
-  width: 100%;
-  height: 2px;
-  background-color: var(--dark);
-  border-radius: 2px;
-  transition: var(--transition-smooth);
-}
-
-/* ==========================================================================
-   4. HERO SECTION
-   ========================================================================== */
-.hero-section {
-  position: relative;
-  padding-top: 11rem;
-  padding-bottom: 7rem;
-  overflow: hidden;
-}
-
-.hero-bg-blobs {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.hero-scatter {
-  width: 100%;
-  height: 100%;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-30px) scale(1.1); }
-}
-
-.hero-content {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.hero-title {
-  margin-bottom: 1.25rem;
-  color: var(--dark);
-}
-
-.badge {
-  display: inline-block;
-  background-color: rgba(10, 10, 10, 0.04);
-  border: 1px solid rgba(10, 10, 10, 0.12);
-  color: var(--primary);
-  font-family: var(--font-primary);
-  font-weight: 700;
-  font-size: 0.8rem;
-  letter-spacing: 0.05em;
-  padding: 0.45rem 1.15rem;
-  border-radius: var(--radius-full);
-  margin-bottom: 1.5rem;
-}
-
-.hero-subheadline {
-  font-size: clamp(1.1rem, 2.5vw, 1.35rem);
-  margin-top: 1.25rem;
-  margin-bottom: 2.75rem;
-  line-height: 1.6;
-}
-
-.hero-actions {
-  display: flex;
-  justify-content: center;
-  gap: 1.25rem;
-  flex-wrap: wrap;
-}
-
-.hero-stats {
-  display: flex;
-  justify-content: center;
-  gap: 5rem;
-  margin-top: 5rem;
-  border-top: 1px solid var(--border);
-  padding-top: 2.5rem;
-}
-
-.stat-item h3 {
-  font-size: 2.25rem;
-  color: var(--primary);
-}
-
-.stat-item span {
-  font-family: var(--font-secondary);
-  font-weight: 800;
-  font-size: 2.25rem;
-  color: var(--primary);
-}
-
-.stat-item p {
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-/* ==========================================================================
-   5. TRUSTED BY SECTION
-   ========================================================================== */
-.trusted-logos {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4rem;
-  margin-top: 1.5rem;
-}
-
-.logo-item {
-  font-family: var(--font-secondary);
-  font-weight: 800;
-  font-size: 1.25rem;
-  color: #94a3b8;
-  opacity: 0.85;
-  transition: var(--transition-smooth);
-}
-
-.logo-item:hover {
-  color: var(--text-muted);
-  opacity: 1;
-}
-
-.logo-item-img {
-  opacity: 0.85;
-  filter: grayscale(100%);
-  transition: var(--transition-smooth);
-}
-
-.logo-item-img:hover {
-  opacity: 1;
-  filter: grayscale(0%);
-}
-
-.logo-item-img img {
-  height: 64px;
-  width: auto;
-  display: block;
-}
-
-/* ==========================================================================
-   6. ABOUT SECTION
-   ========================================================================== */
-.mv-card {
-  display: flex;
-  gap: 1.5rem;
-  margin-top: 2.5rem;
-}
-
-.icon-wrapper {
-  flex-shrink: 0;
-  width: 54px;
-  height: 54px;
-  border-radius: var(--radius-sm);
-  background-color: rgba(10, 10, 10, 0.04);
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(10, 10, 10, 0.08);
-}
-
-.mv-card h3 {
-  font-size: 1.35rem;
-  margin-bottom: 0.35rem;
-}
-
-.brand-pillars-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem;
-}
-
-.pillar-card {
-  background-color: var(--background);
-  border: 1px solid var(--border);
-  padding: 2.25rem;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition-smooth);
-}
-
-.pillar-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--primary);
-}
-
-.pillar-card h4 {
-  color: var(--primary);
-  margin-bottom: 0.5rem;
-}
-
-.pillar-card p {
-  font-size: 0.9rem;
-}
-
-/* ==========================================================================
-   7. WHY LEARN AI SECTION
-   ========================================================================== */
-.why-card {
-  background-color: var(--background);
-  border: 1px solid var(--border);
-  padding: 2.5rem;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition-smooth);
-}
-
-.why-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--accent);
-}
-
-.why-icon-wrapper {
-  margin-bottom: 1.5rem;
-}
-
-.why-card h3 {
-  margin-bottom: 0.75rem;
-}
-
-/* ==========================================================================
-   8. FEATURES BENTO SECTION
-   ========================================================================== */
-.features-bento {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-.bento-item {
-  background-color: var(--background);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 2.25rem;
-  position: relative;
-  overflow: hidden;
-  transition: var(--transition-smooth);
-}
-
-.bento-item:hover {
-  box-shadow: var(--shadow-lg);
-  border-color: var(--accent);
-}
-
-.bento-large {
-  grid-column: span 2;
-  background: linear-gradient(135deg, var(--light) 0%, rgba(242, 183, 5, 0.08) 100%);
-}
-
-.bento-icon-box {
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius-sm);
-  background-color: rgba(10, 10, 10, 0.04);
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1.25rem;
-  border: 1px solid rgba(10, 10, 10, 0.08);
-}
-
-.bento-content h3 {
-  margin-bottom: 0.5rem;
-}
-
-.bento-badge {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--primary);
-  background-color: rgba(10, 10, 10, 0.04);
-  padding: 0.25rem 0.85rem;
-  border-radius: var(--radius-full);
-}
-
-/* ==========================================================================
-   9. BENEFITS SECTION
-   ========================================================================== */
-.benefit-tile {
-  display: flex;
-  gap: 1.5rem;
-  background-color: #111524;
-  padding: 2.5rem 2rem;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-dark);
-  transition: var(--transition-smooth);
-}
-
-.benefit-tile:hover {
-  border-color: var(--accent);
-  background-color: #161c31;
-  transform: translateY(-2px);
-}
-
-.benefit-marker {
-  font-family: var(--font-secondary);
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--accent);
-  line-height: 1;
-}
-
-.benefit-tile h3 {
-  color: var(--white);
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-}
-
-.benefit-tile p {
-  color: #94a3b8;
-  font-size: 0.95rem;
-}
-
-/* ==========================================================================
-   10. COURSE MODULES ACCORDION
-   ========================================================================== */
-.accordion-item {
-  border: 1px solid var(--border);
-  background-color: var(--background);
-  border-radius: var(--radius-sm);
-  margin-bottom: 1rem;
-  overflow: hidden;
-  transition: var(--transition-smooth);
-}
-
-.accordion-item:hover {
-  border-color: var(--primary);
-}
-
-.accordion-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  padding: 1.5rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  gap: 1rem;
-}
-
-.mod-num {
-  font-family: var(--font-secondary);
-  font-weight: 800;
-  color: var(--primary);
-}
-
-.mod-title {
-  font-weight: 700;
-  font-size: 1.15rem;
-  color: var(--dark);
-  flex-grow: 1;
-}
-
-.accordion-icon {
-  position: relative;
-  width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-
-.accordion-icon::before,
-.accordion-icon::after {
-  content: '';
-  position: absolute;
-  background-color: var(--text-muted);
-  transition: var(--transition-smooth);
-}
-
-.accordion-icon::before {
-  top: 7px;
-  left: 0;
-  width: 100%;
-  height: 2px;
-}
-
-.accordion-icon::after {
-  top: 0;
-  left: 7px;
-  width: 2px;
-  height: 100%;
-}
-
-.accordion-header[aria-expanded="true"] .accordion-icon::after {
-  transform: rotate(90deg);
-  opacity: 0;
-}
-
-.accordion-header[aria-expanded="true"] .accordion-icon::before {
-  background-color: var(--primary);
-}
-
-.accordion-panel {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.accordion-content {
-  padding: 0 1.5rem 1.5rem 3rem;
-  border-top: 1px solid transparent;
-}
-
-.accordion-content p {
-  margin-bottom: 1.25rem;
-}
-
-.accordion-content ul {
-  list-style: none;
-}
-
-.accordion-content li {
-  position: relative;
-  font-size: 0.95rem;
-  color: var(--text);
-  padding-left: 1.5rem;
-  margin-bottom: 0.65rem;
-}
-
-.accordion-content li::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  color: var(--primary);
-  font-weight: bold;
-}
-
-/* ==========================================================================
-   11. LEARNING ROADMAP
-   ========================================================================== */
-.roadmap-timeline {
-  position: relative;
-  padding-left: 2rem;
-  border-left: 2px solid var(--border);
-}
-
-.timeline-step {
-  position: relative;
-  margin-bottom: 3.5rem;
-}
-
-.timeline-step:last-child {
-  margin-bottom: 0;
-}
-
-.step-num {
-  position: absolute;
-  left: calc(-2rem - 13px);
-  top: 0;
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-full);
-  background-color: var(--primary);
-  color: var(--white);
-  font-size: 0.65rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 0 4px var(--background);
-}
-
-.step-details h3 {
-  font-size: 1.35rem;
-  margin-bottom: 0.5rem;
-}
-
-/* ==========================================================================
-   12. BONUSES SECTION
-   ========================================================================== */
-.bonus-card {
-  background-color: var(--background);
-  border: 1px solid var(--border);
-  padding: 2.25rem;
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  transition: var(--transition-smooth);
-}
-
-.bonus-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--primary);
-  box-shadow: var(--shadow-lg);
-}
-
-.bonus-icon-wrapper {
-  margin-bottom: 1.25rem;
-}
-
-.bonus-card h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
-}
-
-.bonus-card p {
-  font-size: 0.95rem;
-  flex-grow: 1;
-  margin-bottom: 1.75rem;
-}
-
-.bonus-value {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--primary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* ==========================================================================
-   13. INSTRUCTOR SECTION
-   ========================================================================== */
-.instructor-card-ui {
-  background-color: var(--background);
-  border: 1px solid var(--border);
-  padding: 3.5rem 2.5rem;
-  border-radius: var(--radius-md);
-  text-align: center;
-  box-shadow: var(--shadow-sm);
-}
-
-.instructor-photo {
-  width: 160px;
-  height: 160px;
-  margin: 0 auto 1.5rem;
-  border-radius: var(--radius-full);
-  overflow: hidden;
-}
-
-.instructor-photo .avatar-svg {
-  width: 100%;
-  height: 100%;
-}
-
-.instructor-tag {
-  display: inline-block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--primary);
-  background-color: rgba(10, 10, 10, 0.04);
-  padding: 0.35rem 0.95rem;
-  border-radius: var(--radius-full);
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.instructor-card-ui h3 {
-  margin-bottom: 0.25rem;
-}
-
-.instructor-card-ui p {
-  font-size: 0.9rem;
-}
-
-.instructor-bio-wrapper {
-  padding-left: 1rem;
-}
-
-.instructor-credentials {
-  margin-top: 2rem;
-}
-
-.credential-item {
-  position: relative;
-  padding-left: 1.75rem;
-  margin-bottom: 1.25rem;
-  font-size: 1.05rem;
-}
-
-.credential-item::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
-  color: var(--primary);
-  font-weight: 800;
-}
-
-/* ==========================================================================
-   14. TESTIMONIAL SLIDER
-   ========================================================================== */
-.testimonial-slider-container {
-  background-color: var(--background);
-  border: 1px solid var(--border);
-  padding: 3.5rem;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  position: relative;
-}
-
-.testimonial-slider {
-  position: relative;
-}
-
-.slide {
-  display: none;
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-}
-
-.slide.active {
-  display: block;
-  opacity: 1;
-}
-
-.testimonial-text {
-  font-size: clamp(1.15rem, 2.5vw, 1.4rem);
-  font-family: var(--font-secondary);
-  font-style: italic;
-  font-weight: 500;
-  color: var(--dark);
-  line-height: 1.6;
-  margin-bottom: 2rem;
-}
-
-.testimonial-author h4 {
-  font-size: 1.15rem;
-}
-
-.testimonial-author span {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.slider-controls {
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 2rem;
-}
-
-.slider-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-full);
-  border: 1px solid var(--border);
-  background-color: var(--background);
-  color: var(--dark);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition-bounce);
-}
-
-.slider-btn:hover {
-  background-color: var(--primary);
-  color: var(--white);
-  border-color: var(--primary);
-}
-
-/* ==========================================================================
-   15. PRICING SECTION
-   ========================================================================== */
-.pricing-card {
-  background-color: var(--background);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 3.5rem 2.5rem;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: var(--transition-bounce);
-}
-
-.pricing-card.featured {
-  border-color: var(--dark);
-  border-width: 2px;
-  box-shadow: none;
-  transform: scale(1.03);
-  background: var(--background);
-}
-
-.pricing-card:hover {
-  transform: translateY(-6px);
-  box-shadow: none;
-  border-color: var(--dark);
-}
-
-.pricing-card.featured:hover {
-  transform: translateY(-6px) scale(1.03);
-}
-
-.featured-badge {
-  position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--dark);
-  background-color: var(--accent);
-  padding: 0.35rem 0.95rem;
-  border-radius: var(--radius-full);
-  letter-spacing: 0.05em;
-}
-
-.pricing-header h3 {
-  font-size: 1.85rem;
-  margin-bottom: 0.5rem;
-}
-
-.plan-desc {
-  font-size: 0.95rem;
-  margin-bottom: 2rem;
-  line-height: 1.5;
-}
-
-.price {
-  display: flex;
-  align-items: baseline;
-  margin-bottom: 0.5rem;
-}
-
-.price-usd {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-bottom: 2rem;
-}
-
-.price-usd:has(+ .price-alt) {
-  margin-bottom: 0.35rem;
-}
-
-.price-alt {
-  font-size: 0.9rem;
-  color: var(--text-muted);
-  margin-bottom: 2rem;
-  padding-top: 0.5rem;
-  border-top: 1px dashed var(--border);
-}
-
-.price .currency {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: var(--dark);
-}
-
-.price .amount {
-  font-size: 3.75rem;
-  font-weight: 800;
-  color: var(--dark);
-  line-height: 1;
-}
-
-.price .period {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  margin-left: 0.35rem;
-}
-
-.plan-features {
-  list-style: none;
-  margin-bottom: 3rem;
-}
-
-.plan-features li {
-  margin-bottom: 1.1rem;
-  font-size: 0.95rem;
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-}
-
-.plan-features li.disabled {
-  color: var(--text-muted);
-  text-decoration: line-through;
-  opacity: 0.55;
-}
-
-.plan-features .bullet {
-  font-weight: 800;
-  color: var(--primary);
-}
-
-.plan-features li.disabled .bullet {
-  color: var(--text-muted);
-}
-
-/* ==========================================================================
-   16. FAQ SECTION
-   ========================================================================== */
-.faq-accordion-container .accordion-header {
-  padding: 1.5rem;
-}
-
-.faq-q {
-  font-weight: 700;
-  font-size: 1.15rem;
-  color: var(--dark);
-  flex-grow: 1;
-  padding-right: 1.25rem;
-}
-
-/* ==========================================================================
-   17. COUNTDOWN SECTION
-   ========================================================================== */
-.countdown-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-}
-
-.countdown-item {
-  background-color: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 1.75rem 1rem;
-  border-radius: var(--radius-sm);
-  min-width: 80px;
-}
-
-.time-num {
-  display: block;
-  font-family: var(--font-secondary);
-  font-weight: 800;
-  font-size: clamp(2rem, 4vw, 3rem);
-  color: var(--accent);
-  line-height: 1;
-  margin-bottom: 0.25rem;
-}
-
-.time-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  color: #94a3b8;
-  letter-spacing: 0.08em;
-  font-weight: 600;
-}
-
-/* ==========================================================================
-   18. WAITLIST SECTION
-   ========================================================================== */
-.waitlist-card {
-  background-color: var(--background);
-  border: 1px solid var(--border);
-  padding: 4.5rem 3.5rem;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-md);
-  text-align: center;
-}
-
-.waitlist-card h2 {
-  margin-top: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.waitlist-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-}
-
-.form-group {
-  text-align: left;
-}
-
-.form-input {
-  width: 100%;
-  font-family: var(--font-primary);
-  font-size: 1rem;
-  padding: 0.95rem 1.35rem;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background-color: var(--light);
-  color: var(--dark);
-  transition: var(--transition-smooth);
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  background-color: var(--background);
-  box-shadow: 0 0 0 4px rgba(242, 183, 5, 0.15);
-}
-
-.form-message {
-  margin-top: 0.75rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-}
-
-.form-message.success {
-  color: #059669;
-}
-
-.form-message.error {
-  color: #ef4444;
-}
-
-/* Spinner for lock states */
-.spinner {
-  display: inline-block;
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255,255,255,0.3);
-  border-radius: 50%;
-  border-top-color: var(--white);
-  animation: spin 0.8s infinite linear;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ==========================================================================
-   19. CONTACT SECTION
-   ========================================================================== */
-.contact-methods {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.contact-method-item {
-  display: flex;
-  gap: 1.25rem;
-  align-items: center;
-}
-
-.icon-bubble {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-full);
-  background-color: rgba(10, 10, 10, 0.04);
-  color: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(10, 10, 10, 0.08);
-}
-
-.contact-method-item h4 {
-  font-size: 1.1rem;
-  margin-bottom: 0.15rem;
-}
-
-.contact-link {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-}
-
-.contact-link:hover {
-  color: var(--primary);
-}
-
-.custom-card {
-  background-color: var(--background);
-  border: 1px solid var(--border);
-  padding: 3.5rem;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-}
-
-.contact-grid-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* ==========================================================================
-   20. MAIN FOOTER
-   ========================================================================== */
-.main-footer {
-  border-top: 1px solid #1e293b;
-}
-
-.footer-top {
-  display: grid;
-  grid-template-columns: 1.5fr repeat(3, 1fr);
-  gap: 3.5rem;
-}
-
-.footer-brand .logo-accent {
-  color: var(--accent);
-}
-
-.footer-brand .logo-mark {
-  color: var(--white);
-}
-
-.footer-brand p {
-  font-size: 0.95rem;
-  line-height: 1.6;
-}
-
-.footer-links-grid {
-  display: contents;
-}
-
-.footer-links-grid h4 {
-  color: var(--white);
-  font-size: 0.95rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 1.25rem;
-}
-
-.footer-links-grid ul {
-  list-style: none;
-}
-
-.footer-links-grid li {
-  margin-bottom: 0.85rem;
-}
-
-.footer-links-grid a {
-  color: #94a3b8;
-  font-size: 0.95rem;
-}
-
-.footer-links-grid a:hover {
-  color: var(--accent);
-}
-
-.footer-bottom {
-  border-top: 1px solid #1e293b;
-  padding-top: 2rem;
-}
-
-.footer-bottom p {
-  font-size: 0.85rem;
-}
-
-/* ==========================================================================
-   21. BACK TO TOP BUTTON
-   ========================================================================== */
-.back-to-top {
-  position: fixed;
-  bottom: -60px;
-  right: 30px;
-  width: 46px;
-  height: 46px;
-  background-color: var(--primary);
-  color: var(--white);
-  border: none;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  box-shadow: var(--shadow-md);
-  z-index: 999;
-  font-size: 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition-bounce);
-}
-
-.back-to-top.visible {
-  bottom: 30px;
-}
-
-.back-to-top:hover {
-  background-color: var(--secondary);
-  transform: scale(1.08);
-}
-
-/* ==========================================================================
-   22. ANIMATION AND OBSERVER STYLES
-   ========================================================================== */
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.scroll-reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.delay-1 { transition-delay: 0.1s; animation-delay: 0.1s; }
-.delay-2 { transition-delay: 0.2s; animation-delay: 0.2s; }
-.delay-3 { transition-delay: 0.3s; animation-delay: 0.3s; }
-
-/* Loading Fade In Keyframes */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Course & Syllabus | TREV AI Masterclass</title>
+  
+  <!-- SEO & Metadata -->
+  <meta name="description" content="See exactly what you'll learn in the TREV AI Masterclass: why AI skills matter now, the tools and features covered, and the full 7-session syllabus.">
+  <meta name="keywords" content="AI Masterclass, Learn AI, Prompt Engineering, ChatGPT Africa, Google AI Studio, Claude, AI Automation, Tech Digital Skills, TREV AI, AI for Professionals">
+  <meta name="author" content="TREV AI">
+  <link rel="canonical" href="https://trev-ai.com/course.html">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://trev-ai.com/course.html">
+  <meta property="og:title" content="Course & Syllabus | TREV AI Masterclass">
+  <meta property="og:description" content="See exactly what you'll learn in the TREV AI Masterclass: why AI skills matter now, the tools and features covered, and the full 7-session syllabus.">
+  <meta property="og:image" content="https://trev-ai.com/assets/images/og-banner.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://trev-ai.com/course.html">
+  <meta property="twitter:title" content="Course & Syllabus | TREV AI Masterclass">
+  <meta property="twitter:description" content="See exactly what you'll learn in the TREV AI Masterclass: why AI skills matter now, the tools and features covered, and the full 7-session syllabus.">
+  <meta property="twitter:image" content="https://trev-ai.com/assets/images/og-banner.png">
+
+  <!-- Fonts Preconnect -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Course Schema JSON-LD for SEO -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "TREV AI Masterclass",
+    "description": "Comprehensive practical AI training program covering Prompt Engineering, ChatGPT, Gemini, Claude, NotebookLM, Automation, and multi-agent workflows.",
+    "provider": {
+      "@type": "Organization",
+      "name": "TREV AI",
+      "sameAs": "https://trev-ai.com"
+    },
+    "hasCourseInstance": {
+      "@type": "CourseInstance",
+      "courseMode": "Online",
+      "courseWorkload": "PT25H",
+      "offers": {
+        "@type": "Offer",
+        "price": "49.00",
+        "priceCurrency": "USD",
+        "category": "Paid"
+      }
+    }
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+  </script>
+</head>
+<body class="bg-background text-text antialiased selection:bg-primary/20 selection:text-primary">
 
-.fade-in-up {
-  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
+  <!-- Skip-Link for Accessibility -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
 
-/* ==========================================================================
-   23. RESPONSIVE BREAKPOINTS
-   ========================================================================== */
-@media (max-width: 1024px) {
-  .grid-3 { grid-template-columns: repeat(2, 1fr); }
-  .grid-4 { grid-template-columns: repeat(2, 1fr); }
-  .features-bento { grid-template-columns: repeat(2, 1fr); }
-  .bento-large { grid-column: span 2; }
-}
+  <!-- Header Section -->
+  <header class="main-header" id="header" role="banner">
+    <div class="header-container container">
+      <a href="index.html" class="logo" aria-label="TREV AI Homepage">
+        <svg class="logo-mark" width="30" height="30" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="2" y="20" width="7" height="14" rx="2" fill="currentColor"/>
+          <rect x="14.5" y="12" width="7" height="22" rx="2" fill="currentColor"/>
+          <rect x="27" y="2" width="7" height="32" rx="2" fill="currentColor"/>
+          <circle cx="30.5" cy="2" r="4.5" fill="var(--accent)"/>
+        </svg>
+        <span class="logo-accent">TREV</span> <span class="logo-text">AI</span>
+      </a>
+      
+      <button class="menu-toggle" aria-label="Toggle Navigation Menu" aria-controls="primary-nav" aria-expanded="false">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
 
-@media (max-width: 768px) {
-  .menu-toggle {
-    display: flex;
-  }
+      <nav class="primary-nav" id="primary-nav" aria-label="Main Directory">
+        <ul class="nav-links">
+          <li><a href="index.html#about" class="nav-link">About</a></li>
+          <li><a href="#why-learn-ai" class="nav-link">Why Learn AI</a></li>
+          <li><a href="#features" class="nav-link">Features</a></li>
+          <li><a href="#modules" class="nav-link">Syllabus</a></li>
+          <li><a href="pricing.html#pricing" class="nav-link">Pricing</a></li>
+          <li><a href="pricing.html#faq" class="nav-link">FAQ</a></li>
+          <li><a href="contact.html#contact" class="nav-link">Contact</a></li>
+        </ul>
+        <div class="nav-cta">
+          <a href="pricing.html#pricing" class="btn btn-primary btn-sm">Enroll Now</a>
+        </div>
+      </nav>
+    </div>
+  </header>
 
-  .primary-nav {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-    background-color: var(--background);
-    border-bottom: 1px solid var(--border);
-    flex-direction: column;
-    padding: 2.5rem 0;
-    gap: 1.75rem;
-    box-shadow: var(--shadow-md);
-    transform: translateY(-150%);
-    opacity: 0;
-    pointer-events: none;
-    transition: var(--transition-smooth);
-  }
+  <main id="main-content">
 
-  .primary-nav.active {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: all;
-  }
+    <!-- 4. WHY LEARN AI SECTION -->
+    <section class="why-learn-section py-lg bg-light" id="why-learn-ai">
+      <div class="container">
+        <div class="text-center max-w-lg mx-auto scroll-reveal">
+          <span class="section-tag">The AI Advantage</span>
+          <h2 class="section-heading">AI won't replace you, but individuals using AI will.</h2>
+          <p class="section-desc">Learn how to double your current output speed, automate routine processes, and position your digital business on a global scale.</p>
+        </div>
 
-  .nav-links {
-    flex-direction: column;
-    align-items: center;
-    gap: 1.5rem;
-  }
+        <div class="grid-3 mt-md">
+          <div class="why-card scroll-reveal">
+            <div class="why-icon-wrapper" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <h3>Supercharged Output</h3>
+            <p>Compress analytical reports, creative copy, or detailed market research into rapid, well-structured workflows.</p>
+          </div>
+          <div class="why-card scroll-reveal delay-1">
+            <div class="why-icon-wrapper" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+            </div>
+            <h3>Global Remote Career</h3>
+            <p>Position yourself on platforms like Upwork and Fiverr with elite capabilities as an automation strategist.</p>
+          </div>
+          <div class="why-card scroll-reveal delay-2">
+            <div class="why-icon-wrapper" aria-hidden="true">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/>
+                <path d="M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/>
+                <line x1="12" y1="2" x2="12" y2="4"/>
+                <line x1="12" y1="20" x2="12" y2="22"/>
+              </svg>
+            </div>
+            <h3>Infinite Creative Scale</h3>
+            <p>Generate marketing visuals, high-converting product pages, and social video scripts in minutes with zero friction.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-  .grid-2, .grid-3, .grid-4, .features-bento {
-    grid-template-columns: 1fr;
-  }
+    <!-- 5. FEATURES SECTION -->
+    <section class="features-section py-lg" id="features">
+      <div class="container">
+        <div class="text-center max-w-lg mx-auto scroll-reveal">
+          <span class="section-tag">System Features</span>
+          <h2 class="section-heading">Master Every Critical Tool & Method</h2>
+          <p class="section-desc">We teach deep frameworks, not surface tricks. Here is the operational core of the TREV syllabus.</p>
+        </div>
 
-  .bento-large {
-    grid-column: span 1;
-  }
+        <div class="features-bento mt-md">
+          <div class="bento-item bento-large scroll-reveal">
+            <div class="bento-content">
+              <div class="bento-icon-box" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="4 17 10 11 4 5"/>
+                  <line x1="12" y1="19" x2="20" y2="19"/>
+                </svg>
+              </div>
+              <h3>Prompt Engineering Architecture</h3>
+              <p>Move past basic chat queries. Program models using few-shot training, context patterns, and structured data generation.</p>
+            </div>
+            <div class="bento-badge">Core Pillar</div>
+          </div>
 
-  .hero-stats {
-    flex-direction: column;
-    gap: 2.5rem;
-    align-items: center;
-  }
+          <div class="bento-item scroll-reveal delay-1">
+            <div class="bento-content">
+              <div class="bento-icon-box" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                </svg>
+              </div>
+              <h3>The Big Three</h3>
+              <p>Harness the specialized strengths of Claude (writing), ChatGPT (logic/code), and Gemini (live integrations).</p>
+            </div>
+          </div>
 
-  .footer-top {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
-  }
+          <div class="bento-item scroll-reveal delay-2">
+            <div class="bento-content">
+              <div class="bento-icon-box" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                </svg>
+              </div>
+              <h3>NotebookLM Systems</h3>
+              <p>Synthesize massive study folders and produce automated, conversational audio summaries from your documents.</p>
+            </div>
+          </div>
 
-  .instructor-bio-wrapper {
-    padding-left: 0;
-  }
+          <div class="bento-item scroll-reveal">
+            <div class="bento-content">
+              <div class="bento-icon-box" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+                  <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+                  <line x1="6" y1="6" x2="6.01" y2="6"/>
+                  <line x1="6" y1="18" x2="6.01" y2="18"/>
+                </svg>
+              </div>
+              <h3>Google AI Studio</h3>
+              <p>Interact with developer-tier models directly for maximum limits, large-document reading, and customizable outputs.</p>
+            </div>
+          </div>
 
-  .waitlist-card {
-    padding: 3rem 1.5rem;
-  }
-}
+          <div class="bento-item bento-large scroll-reveal delay-1">
+            <div class="bento-content">
+              <div class="bento-icon-box" aria-hidden="true">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                </svg>
+              </div>
+              <h3>Automations & Workflows</h3>
+              <p>Chain web applications with Make and Zapier. Connect AI platforms directly with your custom communication pathways.</p>
+            </div>
+            <div class="bento-badge">Advanced</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-/* ==========================================================================
-   Legal Pages (Terms, Privacy, Refund, Ethics)
-   ========================================================================== */
+    <!-- 6. BENEFITS SECTION -->
+    <section class="benefits-section py-lg bg-dark text-white" id="benefits">
+      <div class="container">
+        <div class="text-center max-w-lg mx-auto scroll-reveal">
+          <span class="section-tag">Performance Gains</span>
+          <h2 class="section-heading text-white">The Competitive Advantage</h2>
+          <p class="section-desc text-gray">How this skill upgrade changes your operational capabilities day-to-day.</p>
+        </div>
 
-.legal-section {
-  padding-top: calc(var(--header-height) + 3rem);
-}
+        <div class="grid-2 mt-md">
+          <div class="benefit-tile scroll-reveal">
+            <div class="benefit-marker">01</div>
+            <div>
+              <h3>Accelerated Task Execution</h3>
+              <p>Draft business briefs, write clean templates, and run deep document analysis in a fraction of your normal working time.</p>
+            </div>
+          </div>
+          <div class="benefit-tile scroll-reveal delay-1">
+            <div class="benefit-marker">02</div>
+            <div>
+              <h3>Earn Premium Global Rates</h3>
+              <p>Complete multi-day client projects in hours. Position your agency with faster turnaround times and superior output standards.</p>
+            </div>
+          </div>
+          <div class="benefit-tile scroll-reveal">
+            <div class="benefit-marker">03</div>
+            <div>
+              <h3>Data-Driven Strategy</h3>
+              <p>Analyze dense datasets to verify market opportunities, identify patterns, and run simulations for business growth.</p>
+            </div>
+          </div>
+          <div class="benefit-tile scroll-reveal delay-1">
+            <div class="benefit-marker">04</div>
+            <div>
+              <h3>Future-Proof Positioning</h3>
+              <p>Add 'AI Workflow Specialist' to your portfolio and stand out as a highly valuable professional for global companies.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-.legal-content {
-  max-width: 760px;
-}
+    <!-- 7. COURSE MODULES -->
+    <section class="modules-section py-lg" id="modules">
+      <div class="container">
+        <div class="text-center max-w-lg mx-auto scroll-reveal">
+          <span class="section-tag">Syllabus Breakdown</span>
+          <h2 class="section-heading">7 Core Sessions</h2>
+          <p class="section-desc">A structured, linear learning path designed to transition you from an explorer into a confident AI operator.</p>
+        </div>
 
-.legal-content h1 {
-  margin-top: 1rem;
-  margin-bottom: 0.5rem;
-  font-size: clamp(2rem, 4vw, 3rem);
-}
+        <div class="modules-accordion-container mt-md mx-auto max-w-md">
 
-.legal-updated {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  margin-bottom: 3rem;
-}
+          <div class="accordion-item scroll-reveal">
+            <button class="accordion-header" aria-expanded="false" aria-controls="mod-1-panel">
+              <span class="mod-num">01</span>
+              <span class="mod-title">Session 1: Foundations (ChatGPT & Gemini)</span>
+              <span class="accordion-icon" aria-hidden="true"></span>
+            </button>
+            <div class="accordion-panel" id="mod-1-panel" hidden>
+              <div class="accordion-content">
+                <p>Get every account set up and learn the fundamentals of how these two flagship models actually work.</p>
+                <ul>
+                  <li>Setting up ChatGPT and Gemini accounts (free tier only, no paid tools required)</li>
+                  <li>How LLMs generate responses, and where each tool's strengths differ</li>
+                  <li>Your first structured prompts: moving from casual questions to clear instructions</li>
+                </ul>
+              </div>
+            </div>
+          </div>
 
-.legal-content h3 {
-  font-size: 1.35rem;
-  margin-top: 2.5rem;
-  margin-bottom: 0.75rem;
-}
+          <div class="accordion-item scroll-reveal">
+            <button class="accordion-header" aria-expanded="false" aria-controls="mod-2-panel">
+              <span class="mod-num">02</span>
+              <span class="mod-title">Session 2: Prompt Engineering I (ChatGPT & Claude)</span>
+              <span class="accordion-icon" aria-hidden="true"></span>
+            </button>
+            <div class="accordion-panel" id="mod-2-panel" hidden>
+              <div class="accordion-content">
+                <p>Move past one-line questions and start programming the model to give you the output you actually want.</p>
+                <ul>
+                  <li>Role prompting: giving the AI a persona to sharpen its answers</li>
+                  <li>Being specific about format, length, and audience</li>
+                  <li>Comparing ChatGPT and Claude on the same task to see where each excels</li>
+                </ul>
+              </div>
+            </div>
+          </div>
 
-.legal-content p {
-  margin-bottom: 1.25rem;
-  line-height: 1.7;
-  color: var(--text);
-}
+          <div class="accordion-item scroll-reveal">
+            <button class="accordion-header" aria-expanded="false" aria-controls="mod-3-panel">
+              <span class="mod-num">03</span>
+              <span class="mod-title">Session 3: Prompt Engineering II & Tool Matching</span>
+              <span class="accordion-icon" aria-hidden="true"></span>
+            </button>
+            <div class="accordion-panel" id="mod-3-panel" hidden>
+              <div class="accordion-content">
+                <p>Refine your prompting further, then learn which tool to reach for depending on the task in front of you.</p>
+                <ul>
+                  <li>Iterating on a draft instead of accepting the first answer</li>
+                  <li>Step-by-step reasoning prompts for anything analytical</li>
+                  <li>Building a personal decision tree: which AI tool for which job</li>
+                </ul>
+              </div>
+            </div>
+          </div>
 
-.legal-content ul {
-  margin: 0 0 1.5rem 1.25rem;
-  list-style: disc;
-}
+          <div class="accordion-item scroll-reveal">
+            <button class="accordion-header" aria-expanded="false" aria-controls="mod-4-panel">
+              <span class="mod-num">04</span>
+              <span class="mod-title">Session 4: Research & Deep Thinking (Perplexity & NotebookLM)</span>
+              <span class="accordion-icon" aria-hidden="true"></span>
+            </button>
+            <div class="accordion-panel" id="mod-4-panel" hidden>
+              <div class="accordion-content">
+                <p>Learn to research and synthesize information rather than just generate it.</p>
+                <ul>
+                  <li>Running NotebookLM to turn your own notes and documents into a queryable assistant</li>
+                  <li>Using Perplexity for sourced, up-to-date research</li>
+                  <li>Cross-referencing multiple sources cleanly and verifying claims</li>
+                </ul>
+              </div>
+            </div>
+          </div>
 
-.legal-content ul li {
-  margin-bottom: 0.75rem;
-  line-height: 1.7;
-  padding-left: 0.25rem;
-}
+          <div class="accordion-item scroll-reveal">
+            <button class="accordion-header" aria-expanded="false" aria-controls="mod-5-panel">
+              <span class="mod-num">05</span>
+              <span class="mod-title">Session 5: Creating with AI (The 7 Core Use Cases)</span>
+              <span class="accordion-icon" aria-hidden="true"></span>
+            </button>
+            <div class="accordion-panel" id="mod-5-panel" hidden>
+              <div class="accordion-content">
+                <p>A hands-on tour of the most common ways people put AI to work day-to-day.</p>
+                <ul>
+                  <li>Writing, editing, and brainstorming</li>
+                  <li>Planning, organizing, and summarizing</li>
+                  <li>The remaining core use cases, applied to your own goals</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item scroll-reveal">
+            <button class="accordion-header" aria-expanded="false" aria-controls="mod-6-panel">
+              <span class="mod-num">06</span>
+              <span class="mod-title">Session 6: Chaining Tools & AI Ethics</span>
+              <span class="accordion-icon" aria-hidden="true"></span>
+            </button>
+            <div class="accordion-panel" id="mod-6-panel" hidden>
+              <div class="accordion-content">
+                <p>Connect multiple tools into a single workflow, and think critically about responsible use.</p>
+                <ul>
+                  <li>Passing output from one AI tool into another as part of one workflow</li>
+                  <li>Where AI gets things wrong, and how to catch it</li>
+                  <li>Using AI responsibly: attribution, privacy, and knowing the tool's limits</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item scroll-reveal">
+            <button class="accordion-header" aria-expanded="false" aria-controls="mod-7-panel">
+              <span class="mod-num">07</span>
+              <span class="mod-title">Session 7: Final Presentations & Graduation</span>
+              <span class="accordion-icon" aria-hidden="true"></span>
+            </button>
+            <div class="accordion-panel" id="mod-7-panel" hidden>
+              <div class="accordion-content">
+                <p>Present the project you've built across the course, and receive your Certificate of Completion.</p>
+                <ul>
+                  <li>Presenting your final project to the group</li>
+                  <li>Peer and instructor feedback</li>
+                  <li>Certificate of Completion (requires attending at least 5 of 7 sessions)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. LEARNING ROADMAP -->
+    <section class="roadmap-section py-lg bg-light" id="roadmap">
+      <div class="container">
+        <div class="text-center max-w-lg mx-auto scroll-reveal">
+          <span class="section-tag">The Journey</span>
+          <h2 class="section-heading">Your Roadmap to AI Mastery</h2>
+          <p class="section-desc">A highly structured, progressive syllabus designed to guide you step-by-step from foundations to certified specialist status.</p>
+        </div>
+
+        <div class="roadmap-timeline mt-md mx-auto max-w-md">
+          <div class="timeline-step scroll-reveal">
+            <div class="step-num">Step 1</div>
+            <div class="step-details">
+              <h3>Syllabus Foundations (Week 1)</h3>
+              <p>Configure your workspaces, master fundamental prompt syntax, and explore the landscape of modern LLMs.</p>
+            </div>
+          </div>
+          <div class="timeline-step scroll-reveal delay-1">
+            <div class="step-num">Step 2</div>
+            <div class="step-details">
+              <h3>Power Tool Workflows (Weeks 2-3)</h3>
+              <p>Synthesize research with NotebookLM, draft highly targeted brand copy, and create professional-grade visual graphics.</p>
+            </div>
+          </div>
+          <div class="timeline-step scroll-reveal">
+            <div class="step-num">Step 3</div>
+            <div class="step-details">
+              <h3>Connect Automations & APIs (Week 4)</h3>
+              <p>Integrate your AI models with external web platforms. Launch multi-agent networks to run tasks autonomously.</p>
+            </div>
+          </div>
+          <div class="timeline-step scroll-reveal delay-1">
+            <div class="step-num">Step 4</div>
+            <div class="step-details">
+              <h3>Deploy Capstone & Graduate (Week 5)</h3>
+              <p>Build and launch your own automated digital project. Complete the requirements to receive your verified course certificate.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. BONUSES SECTION -->
+    <section class="bonuses-section py-lg" id="bonuses">
+      <div class="container">
+        <div class="text-center max-w-lg mx-auto scroll-reveal">
+          <span class="section-tag">Value Additions</span>
+          <h2 class="section-heading">Exclusive Premium Bonuses</h2>
+          <p class="section-desc">Included completely free with your registration to support your learning journey over the long term.</p>
+        </div>
+
+        <div class="grid-4 mt-md">
+          <div class="bonus-card scroll-reveal">
+            <div class="bonus-icon-wrapper" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+              </svg>
+            </div>
+            <h3>Master Prompt Library</h3>
+            <p>1,000+ thoroughly tested prompts for marketing, research, and analysis.</p>
+            <span class="bonus-value">Value: $150</span>
+          </div>
+          <div class="bonus-card scroll-reveal delay-1">
+            <div class="bonus-icon-wrapper" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+            </div>
+            <h3>Business & Proposal Templates</h3>
+            <p>Ready-to-use outlines for onboarding clients, writing scopes, and managing projects.</p>
+            <span class="bonus-value">Value: $99</span>
+          </div>
+          <div class="bonus-card scroll-reveal delay-2">
+            <div class="bonus-icon-wrapper" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+              </svg>
+            </div>
+            <h3>24-Month Content Updates</h3>
+            <p>Keep your skills current. Enjoy free access to new modules, guides, and tools as AI tech evolves.</p>
+            <span class="bonus-value">Value: Priceless</span>
+          </div>
+          <div class="bonus-card scroll-reveal delay-3">
+            <div class="bonus-icon-wrapper" aria-hidden="true">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <h3>Private Circle Community</h3>
+            <p>Connect with a passionate group of students, founders, and educators for collaboration and support.</p>
+            <span class="bonus-value">Value: $199</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10. INSTRUCTOR SECTION -->
+    <section class="instructor-section py-lg bg-light" id="instructor">
+      <div class="container grid-2">
+        <div class="instructor-image-wrapper scroll-reveal">
+          <div class="instructor-card-ui">
+            <div class="instructor-photo">
+              <svg width="200" height="200" viewBox="0 0 200 200" fill="none" class="avatar-svg" aria-hidden="true">
+                <circle cx="100" cy="100" r="100" fill="#0F172A"/>
+                <circle cx="100" cy="70" r="40" fill="#2563EB"/>
+                <path d="M40 160C40 126.863 66.8629 100 100 100C133.137 100 160 126.863 160 160H40Z" fill="#38BDF8"/>
+              </svg>
+            </div>
+            <div class="instructor-tag">Lead Faculty</div>
+            <h3>TREV AI Advisors</h3>
+            <p>Technology & AI Automation Consultants</p>
+          </div>
+        </div>
+        <div class="instructor-bio-wrapper scroll-reveal delay-1">
+          <span class="section-tag">Your Advisors</span>
+          <h2 class="section-heading">Guided by Professional Operators</h2>
+          <p class="section-desc">
+            We are practitioners, not theorists. Our faculty includes technology integration specialists who have configured automation systems, advised growing brands, and managed digital workflows across Sub-Saharan Africa.
+          </p>
+          <div class="instructor-credentials">
+            <div class="credential-item">
+              <strong>Proven Experience:</strong> Over 5 years of implementing complex, code-free digital operations.
+            </div>
+            <div class="credential-item">
+              <strong>Real-World Practice:</strong> Active builders advising growing companies and educational centers.
+            </div>
+            <div class="credential-item">
+              <strong>Simplified Learning:</strong> Focused on translating technical workflows into intuitive, everyday tasks.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+  </main>
+
+  <!-- FOOTER SECTION -->
+  <footer class="main-footer bg-dark text-white py-md" role="contentinfo">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <span class="logo-accent">TREV</span> <span class="logo-text text-white">AI</span>
+          <p class="mt-xs text-gray">Technology. Research. Empower. Value. Elevating operational skills and digital efficiency across the African continent.</p>
+        </div>
+        <div class="footer-links-grid">
+          <div>
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="index.html#about">About</a></li>
+              <li><a href="#why-learn-ai">Why Learn AI</a></li>
+              <li><a href="#modules">Syllabus</a></li>
+              <li><a href="pricing.html#pricing">Pricing</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Legal Policies</h4>
+            <ul>
+              <li><a href="terms.html">Terms of Service</a></li>
+              <li><a href="privacy.html">Privacy Policy</a></li>
+              <li><a href="refund.html">Refund Policy</a></li>
+              <li><a href="ethics.html">Academic Ethics</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Social Channels</h4>
+            <ul class="social-links-list">
+              <li><a href="#" target="_blank" rel="noopener noreferrer">Twitter / X</a></li>
+              <li><a href="#" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+              <li><a href="#" target="_blank" rel="noopener noreferrer">Instagram</a></li>
+              <li><a href="#" target="_blank" rel="noopener noreferrer">YouTube</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom text-center text-gray mt-md">
+        <p>&copy; 2026 TREV AI. All Rights Reserved. Empowering digital operations across Africa.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Back to Top Button -->
+  <button id="backToTop" class="back-to-top" aria-label="Scroll to top of the page">↑</button>
+
+  <script src="js/script.js" defer></script>
+</body>
+</html>
