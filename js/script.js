@@ -42,12 +42,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   window.addEventListener('scroll', handleHeaderScroll, { passive: true });
 
+  const pageProgressBar = document.getElementById('pageProgressBar');
+  if (pageProgressBar) {
+    const updatePageProgress = () => {
+      const scrollable = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = scrollable > 0 ? Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100)) : 0;
+      pageProgressBar.style.width = `${progress}%`;
+    };
+    window.addEventListener('scroll', updatePageProgress, { passive: true });
+    window.addEventListener('resize', updatePageProgress, { passive: true });
+    updatePageProgress();
+  }
+
 
   // 2. MOBILE ACCESSIBLE MENU TOGGLE
   const menuToggle = document.querySelector('.menu-toggle');
   const primaryNav = document.getElementById('primary-nav');
 
   if (menuToggle && primaryNav) {
+    const navBackdrop = document.createElement('button');
+    navBackdrop.type = 'button';
+    navBackdrop.className = 'nav-backdrop';
+    navBackdrop.setAttribute('aria-label', 'Close navigation menu');
+    document.body.appendChild(navBackdrop);
+
+    const syncNavAvailability = () => {
+      primaryNav.inert = window.innerWidth <= 1180 && !primaryNav.classList.contains('active');
+    };
+
     const toggleMenu = (forceClose = false) => {
       const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
       const shouldOpen = forceClose ? false : !isExpanded;
@@ -55,6 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
       menuToggle.setAttribute('aria-expanded', shouldOpen);
       primaryNav.classList.toggle('active', shouldOpen);
       menuToggle.classList.toggle('open', shouldOpen);
+      navBackdrop.classList.toggle('active', shouldOpen);
+      document.body.classList.toggle('nav-open', shouldOpen);
+      if (!shouldOpen && window.innerWidth <= 1180 && primaryNav.contains(document.activeElement)) {
+        menuToggle.focus();
+      }
+      syncNavAvailability();
 
       const bars = menuToggle.querySelectorAll('.bar');
       if (shouldOpen) {
@@ -69,9 +97,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     menuToggle.addEventListener('click', () => toggleMenu());
+    navBackdrop.addEventListener('click', () => toggleMenu(true));
+    syncNavAvailability();
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 1180 && primaryNav.classList.contains('active')) toggleMenu(true);
+      syncNavAvailability();
+    }, { passive: true });
 
     // Close menu on navigation link clicks
-    navLinks.forEach(link => {
+    primaryNav.querySelectorAll('a[href]').forEach(link => {
       link.addEventListener('click', () => toggleMenu(true));
     });
 
@@ -154,42 +188,51 @@ document.addEventListener('DOMContentLoaded', () => {
   const accordions = document.querySelectorAll('.accordion-header');
 
   accordions.forEach(header => {
+    const panel = header.nextElementSibling;
+    let transitionId = 0;
+    let transitionHandler = null;
+    let transitionTimeout = null;
+    const clearPendingTransition = () => {
+      if (transitionHandler) panel.removeEventListener('transitionend', transitionHandler);
+      if (transitionTimeout !== null) window.clearTimeout(transitionTimeout);
+      transitionHandler = null;
+      transitionTimeout = null;
+    };
+
     header.addEventListener('click', () => {
-      const panel = header.nextElementSibling;
-      const isExpanded = header.getAttribute('aria-expanded') === 'true';
+      clearPendingTransition();
+      const currentTransition = ++transitionId;
+      const shouldOpen = header.getAttribute('aria-expanded') !== 'true';
+      const startHeight = panel.hidden ? 0 : panel.getBoundingClientRect().height;
+      header.setAttribute('aria-expanded', String(shouldOpen));
+      panel.hidden = false;
 
-      header.setAttribute('aria-expanded', !isExpanded);
-
-      if (!isExpanded) {
-        panel.removeAttribute('hidden');
-        panel.style.maxHeight = panel.scrollHeight + 'px';
-        
-        // Remove hard pixel limits once transition ends to support layout reflows on resize
-        const handleTransitionEnd = (e) => {
-          if (e.propertyName === 'max-height') {
-            panel.style.maxHeight = 'fit-content';
-            panel.removeEventListener('transitionend', handleTransitionEnd);
-          }
-        };
-        panel.addEventListener('transitionend', handleTransitionEnd);
-
-      } else {
-        // Prepare collapse by converting fit-content to explicit scrollHeight first
-        panel.style.maxHeight = panel.scrollHeight + 'px';
-        
-        // Force rendering paint pass
-        panel.offsetHeight;
-
-        panel.style.maxHeight = '0';
-        
-        const handleCollapseEnd = (e) => {
-          if (e.propertyName === 'max-height') {
-            panel.setAttribute('hidden', '');
-            panel.removeEventListener('transitionend', handleCollapseEnd);
-          }
-        };
-        panel.addEventListener('transitionend', handleCollapseEnd);
+      const finish = () => {
+        // A canceled collapse must never hide a panel that has since reopened.
+        if (currentTransition !== transitionId) return;
+        clearPendingTransition();
+        panel.hidden = !shouldOpen;
+        panel.style.maxHeight = shouldOpen ? 'none' : '0px';
+      };
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        finish();
+        return;
       }
+
+      panel.style.maxHeight = `${startHeight}px`;
+      panel.offsetHeight; // Commit the current height before starting or reversing a transition.
+      const targetHeight = shouldOpen ? panel.scrollHeight : 0;
+      if (startHeight === targetHeight) {
+        finish();
+        return;
+      }
+      transitionHandler = (event) => {
+        if (event.target === panel && event.propertyName === 'max-height') finish();
+      };
+      panel.addEventListener('transitionend', transitionHandler);
+      // Transitions can be canceled or disabled; keep hidden and aria-expanded in sync regardless.
+      transitionTimeout = window.setTimeout(finish, 450);
+      panel.style.maxHeight = `${targetHeight}px`;
     });
   });
 
@@ -251,42 +294,27 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
-  // 7. TIMEZONE-AWARE COUNTDOWN SYSTEM
-  const daysEl = document.getElementById('days');
-  const hoursEl = document.getElementById('hours');
-  const minutesEl = document.getElementById('minutes');
-  const secondsEl = document.getElementById('seconds');
-
-  // Dynamic future target timeline (exactly 14 days from active system load date)
-  const targetDate = new Date();
-  targetDate.setDate(targetDate.getDate() + 14);
-
+  // Enrollment countdown uses the shared cohort configuration.
+  const countdownGrid = document.getElementById('countdownGrid');
   const processTimer = () => {
-    const now = new Date().getTime();
-    const distance = targetDate.getTime() - now;
-
-    if (distance < 0) {
-      const zeros = '00';
-      if (daysEl) daysEl.innerText = zeros;
-      if (hoursEl) hoursEl.innerText = zeros;
-      if (minutesEl) minutesEl.innerText = zeros;
-      if (secondsEl) secondsEl.innerText = zeros;
-      return;
-    }
-
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    if (daysEl) daysEl.innerText = days.toString().padStart(2, '0');
-    if (hoursEl) hoursEl.innerText = hours.toString().padStart(2, '0');
-    if (minutesEl) minutesEl.innerText = minutes.toString().padStart(2, '0');
-    if (secondsEl) secondsEl.innerText = seconds.toString().padStart(2, '0');
+    const enrollment = window.TREV_ENROLLMENT;
+    if (!countdownGrid || !enrollment) return;
+    const now = Date.now();
+    const open = enrollment.isOpen(now);
+    const distance = Math.max(0, enrollment.closesAt - now);
+    const values = [Math.floor(distance / 86400000), Math.floor(distance % 86400000 / 3600000), Math.floor(distance % 3600000 / 60000), Math.floor(distance % 60000 / 1000)];
+    ['days', 'hours', 'minutes', 'seconds'].forEach((id, index) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = String(values[index]).padStart(2, '0');
+    });
+    countdownGrid.hidden = !open;
+    document.getElementById('countdownExpired').hidden = open;
+    document.getElementById('countdownTitle').textContent = open ? 'Enrollment Closes In' : 'Enrollment Is Closed';
+    document.getElementById('countdownDescription').textContent = open
+      ? 'Register by 6 November 2026. Classes start 9 November 2026.'
+      : 'The November cohort starts 9 November 2026. Contact us for future enrollment updates.';
   };
-
-  setInterval(processTimer, 1000);
-  processTimer();
+  if (countdownGrid) { processTimer(); window.setInterval(processTimer, 1000); }
 
 
   // 8. BACK TO TOP VISIBILITY CONTROLLER
@@ -346,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const originalBtnHtml = submitBtn.innerHTML;
       submitBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span>';
 
-      renderFormFeedback('Securing your seat...', 'success');
+      renderFormFeedback('Sending your waitlist request...', 'success');
 
       // POST to Google Forms.
       // ⚠️ REPLACE these 3 placeholders once your form is created:
@@ -370,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
           body: formData.toString()
         });
 
-        renderFormFeedback(`Welcome, ${name}! You are on the waitlist. Check your email shortly.`, 'success');
+        renderFormFeedback(`Thanks, ${name}. Your waitlist request was sent. Contact support if you do not receive confirmation.`, 'success');
         waitlistForm.reset();
       } catch (err) {
         renderFormFeedback('Network error. Please check your connection and try again.', 'error');
@@ -391,4 +419,139 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+
+  // 10. DECORATIVE MOTION PREFERENCES
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+
+  // Let the footer version of the logo play only when it becomes visible.
+  const footerLogos = document.querySelectorAll('.footer-logo');
+  if (footerLogos.length > 0 && !prefersReducedMotion) {
+    const footerLogoObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('logo-visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.25 });
+    footerLogos.forEach((logo) => footerLogoObserver.observe(logo));
+  }
+
+
+  // 11. HERO AI DATA-FLOW FIELD + DESKTOP CURSOR ATTRACTION
+  const heroScatter = document.querySelector('.hero-scatter');
+
+  if (heroScatter && !prefersReducedMotion) {
+    const dots = Array.from(heroScatter.querySelectorAll('circle'));
+    const mobile = window.matchMedia('(max-width: 768px)').matches;
+    const pointerFine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    let heroVisible = true;
+    let animationFrame = null;
+    let animationStart = performance.now();
+    let pointer = null;
+
+    const seeded = (index, salt) => {
+      const value = Math.sin((index + 1) * 12.9898 + salt * 78.233) * 43758.5453;
+      return value - Math.floor(value);
+    };
+
+    const dotData = dots.map((dot, index) => {
+      const active = mobile ? index % 2 === 0 : true;
+      const layer = index % 3;
+      const isGold = (dot.getAttribute('fill') || dot.getAttribute('stroke') || '').includes('accent');
+      dot.classList.toggle('data-flow-dot', active);
+      dot.classList.toggle('data-packet-dot', active && isGold && index % 4 === 0);
+      return {
+        dot, active, layer, isPacket: isGold && index % 4 === 0,
+        cx: parseFloat(dot.getAttribute('cx') || '0'), cy: parseFloat(dot.getAttribute('cy') || '0'),
+        phase: seeded(index, 1) * Math.PI * 2,
+        amplitude: 16 + layer * 12 + seeded(index, 2) * 10,
+        speed: (0.00011 + layer * 0.000055) * (isGold && index % 4 === 0 ? 1.75 : 1)
+      };
+    });
+
+    const pointerToViewBox = (event) => {
+      const rect = heroScatter.getBoundingClientRect();
+      if (!rect.width || !rect.height) return null;
+      return { x: (event.clientX - rect.left) * (1600 / rect.width), y: (event.clientY - rect.top) * (700 / rect.height) };
+    };
+
+    if (pointerFine) {
+      heroScatter.closest('.hero-section')?.addEventListener('pointermove', (event) => { pointer = pointerToViewBox(event); }, { passive: true });
+      heroScatter.closest('.hero-section')?.addEventListener('pointerleave', () => { pointer = null; }, { passive: true });
+    }
+
+    const animateDataFlow = (timestamp) => {
+      if (!heroVisible) { animationFrame = null; return; }
+      const elapsed = timestamp - animationStart;
+      dotData.forEach((item) => {
+        if (!item.active) return;
+        const wave = Math.sin(item.phase + elapsed * item.speed);
+        const flowX = wave * item.amplitude;
+        const flowY = wave * item.amplitude * 0.48;
+        let attractX = 0, attractY = 0;
+        if (pointer && pointerFine) {
+          const currentX = item.cx + flowX, currentY = item.cy + flowY;
+          const dx = pointer.x - currentX, dy = pointer.y - currentY;
+          const distance = Math.hypot(dx, dy);
+          const radius = 190;
+          if (distance > 0 && distance < radius) {
+            const strength = (1 - distance / radius) * 10;
+            attractX = (dx / distance) * strength;
+            attractY = (dy / distance) * strength;
+          }
+        }
+        item.dot.style.transform = `translate3d(${(flowX + attractX).toFixed(2)}px, ${(flowY + attractY).toFixed(2)}px, 0)`;
+      });
+      animationFrame = requestAnimationFrame(animateDataFlow);
+    };
+
+    const visibilityObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        heroVisible = entry.isIntersecting;
+        heroScatter.classList.toggle('flow-active', heroVisible);
+        if (heroVisible && !animationFrame) {
+          animationStart = performance.now();
+          animationFrame = requestAnimationFrame(animateDataFlow);
+        }
+      });
+    }, { threshold: 0.05 });
+    visibilityObserver.observe(heroScatter.closest('.hero-section'));
+    animationFrame = requestAnimationFrame(animateDataFlow);
+  }
+
+
+  // 12. 3D CURSOR TILT FOR POINTER DEVICES
+  const tiltCards = document.querySelectorAll(
+    '.pricing-card, .bento-item, .why-card, .bonus-card, .instructor-card-ui'
+  );
+  const supportsHoverTilt = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  if (tiltCards.length > 0 && supportsHoverTilt && !prefersReducedMotion) {
+    const maxTilt = 6;
+
+    tiltCards.forEach((card) => {
+      card.addEventListener('mousemove', (event) => {
+        const rect = card.getBoundingClientRect();
+        const horizontal = (event.clientX - rect.left) / rect.width - 0.5;
+        const vertical = (event.clientY - rect.top) / rect.height - 0.5;
+        const rotateY = horizontal * maxTilt * 2;
+        const rotateX = -vertical * maxTilt * 2;
+        const featuredScale = card.classList.contains('featured') ? ' scale(1.03)' : '';
+
+        card.style.willChange = 'transform';
+        card.style.transition = 'transform 0.12s ease-out';
+        card.style.transform = `perspective(900px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)${featuredScale}`;
+      });
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+        card.style.transform = '';
+        window.setTimeout(() => { card.style.willChange = ''; }, 500);
+      });
+    });
+  }
+
 });
+
