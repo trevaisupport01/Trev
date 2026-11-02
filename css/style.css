@@ -3943,3 +3943,151 @@ body.nav-open { overflow: hidden; }
 .cohort-dates { display:flex; gap: .65rem 1.5rem; flex-wrap:wrap; margin:1rem 0 1.25rem; font-size:.92rem; }
 .cohort-dates strong { color:var(--text); }
 .cohort-dates > span { color:var(--text-muted, #656565); }
+
+/* ---------- Launch checklist additions ---------- */
+
+/* Text-style button used for small secondary actions. */
+.link-button {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--dark);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.link-button:hover { color: var(--text-muted); }
+.link-button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+/* Lost access code */
+.portal-lost-code { margin-top: 1rem; }
+.lost-code-form {
+  margin-top: 0.85rem;
+  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--light);
+}
+.lost-code-form > p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem; }
+
+/* Field-level validation */
+.form-input[aria-invalid="true"] {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+.field-error {
+  display: block;
+  margin-top: 0.4rem;
+  color: #b91c1c;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.field-hint {
+  display: block;
+  margin-top: 0.4rem;
+  color: #92400e;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.field-hint button {
+  background: none; border: 0; padding: 0; font: inherit; color: inherit;
+  text-decoration: underline; cursor: pointer;
+}
+.form-message.error, .form-message.success {
+  padding: 0.7rem 0.85rem;
+  border-radius: var(--radius-sm);
+  line-height: 1.45;
+}
+.form-message.error { background: #fef2f2; color: #b91c1c; }
+.form-message.success { background: #ecfdf5; color: #047857; }
+
+/* First-visit welcome guide */
+.portal-welcome {
+  margin: 1.5rem 0;
+  padding: 1.25rem 1.25rem 1.4rem;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-lg);
+  background: #fffbeb;
+}
+.portal-welcome-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+.portal-welcome-head h2 { font-size: clamp(1.1rem, 2.4vw, 1.4rem); margin-top: 0.35rem; }
+.portal-welcome-steps {
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+}
+.portal-welcome-steps button {
+  width: 100%;
+  height: 100%;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--white);
+  font: inherit;
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.portal-welcome-steps button:hover { border-color: var(--dark); transform: translateY(-1px); }
+.portal-welcome-steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.portal-welcome-steps span { font-size: 0.85rem; color: var(--text-muted); }
+
+/* Your data / delete request */
+.portal-data-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+}
+.portal-data-card > div:first-child { flex: 1 1 320px; }
+.portal-data-card h3 { font-size: 1.05rem; margin-bottom: 0.35rem; }
+.portal-data-card p { font-size: 0.9rem; color: var(--text-muted); }
+.delete-data-form { flex: 1 1 100%; border-top: 1px solid var(--border); padding-top: 1rem; }
+.delete-data-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: flex-end; margin-top: 0.85rem; }
+.optional-label { font-weight: 400; color: var(--text-muted); }
+.btn.btn-danger { border-color: #dc2626; color: #b91c1c; }
+.btn.btn-danger:hover { background: #fef2f2; }
+.btn.btn-danger-solid { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+.btn.btn-danger-solid:hover { background: #991b1b; border-color: #991b1b; }
+
+/* Custom 404 page */
+.not-found-main {
+  min-height: calc(100vh - var(--header-height) - 120px);
+  display: grid;
+  place-items: center;
+  padding: calc(var(--header-height) + 3rem) 1rem 4rem;
+  text-align: center;
+}
+.not-found-code {
+  font-family: var(--font-secondary);
+  font-size: clamp(4.5rem, 18vw, 9rem);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--accent);
+}
+.not-found-main h1 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin: 0.75rem 0; }
+.not-found-main p { color: var(--text-muted); max-width: 32rem; margin: 0 auto; }
+.not-found-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 1.75rem; }
+.not-found-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.25rem; margin-top: 1.5rem; font-size: 0.9rem; }
+.not-found-links a { color: var(--text-muted); font-weight: 600; }
+
+@media (max-width: 480px) {
+  .delete-data-actions .btn, .not-found-actions .btn { flex: 1 1 100%; }
+  .portal-welcome { padding: 1rem; }
+}

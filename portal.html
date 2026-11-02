@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/monitoring.js"></script>
 </head>
 <body class="portal-page bg-light text-text antialiased">
   <a href="#main-content" class="skip-link">Skip to portal login</a>
@@ -81,6 +82,18 @@
               <div id="portalLoginMessage" class="form-message" role="status" aria-live="polite" hidden></div>
               <button id="portalLoginButton" type="submit" class="btn btn-primary btn-full"><span>Open My Portal</span><span aria-hidden="true">→</span></button>
             </form>
+            <div class="portal-lost-code">
+              <button id="lostCodeToggle" type="button" class="link-button" aria-expanded="false" aria-controls="lostCodeForm">Lost your access code?</button>
+              <form id="lostCodeForm" class="lost-code-form" hidden novalidate>
+                <p>Enter the email you registered with. If it matches an approved enrollment, we will email your code again.</p>
+                <div class="form-group">
+                  <label for="lostCodeEmail">Registration email</label>
+                  <input id="lostCodeEmail" name="email" class="form-input" type="email" autocomplete="email" maxlength="120" placeholder="you@example.com" required>
+                </div>
+                <div id="lostCodeMessage" class="form-message" role="status" aria-live="polite" hidden></div>
+                <button id="lostCodeSubmit" type="submit" class="btn btn-outline btn-full">Email My Code</button>
+              </form>
+            </div>
             <div class="portal-help">
               <p><strong>Paid but do not have a code?</strong></p>
               <a href="https://wa.me/2348139908559?text=Hello%20TREV%20AI%20Support.%20I%20have%20paid%20and%20need%20help%20with%20my%20student%20portal%20access%20code." target="_blank" rel="noopener">Contact support on WhatsApp →</a>
@@ -97,6 +110,21 @@
             </div>
             <button id="portalLogout" type="button" class="btn btn-outline btn-sm">Sign Out</button>
           </div>
+
+          <section id="portalWelcome" class="portal-welcome" aria-labelledby="portalWelcomeTitle" hidden>
+            <div class="portal-welcome-head">
+              <div>
+                <span class="section-tag">Start Here</span>
+                <h2 id="portalWelcomeTitle">Welcome aboard! Three quick steps before your first class.</h2>
+              </div>
+              <button id="portalWelcomeDismiss" type="button" class="assignment-modal-close" aria-label="Hide the welcome guide">×</button>
+            </div>
+            <ol class="portal-welcome-steps">
+              <li><button type="button" data-welcome-target="portalCommunity"><strong>1. Join your WhatsApp community</strong><span>Class links and announcements are shared there.</span></button></li>
+              <li><button type="button" data-welcome-target="portalOnboarding"><strong>2. Finish your setup checklist</strong><span>Tick off each step so you are ready on day one.</span></button></li>
+              <li><button type="button" data-welcome-target="portalTimetable"><strong>3. Check your timetable</strong><span>See when your next live class takes place.</span></button></li>
+            </ol>
+          </section>
 
           <section class="learning-overview" aria-labelledby="learningOverviewTitle">
             <div class="progress-ring-card">
@@ -188,6 +216,34 @@
             <p>These rules protect students, learning materials, and the quality of the cohort experience.</p>
           </div>
           <div id="portalGuidelines" class="portal-guidelines" aria-live="polite"></div>
+
+          <div class="dashboard-heading portal-section-heading">
+            <span class="section-tag">Privacy</span>
+            <h2>Your data</h2>
+            <p>You can ask us to delete the personal details we hold about you. See our <a href="privacy.html">privacy policy</a> for what we store.</p>
+          </div>
+          <div class="portal-data-card">
+            <div>
+              <h3>Delete my data</h3>
+              <p>We will remove your name, email, WhatsApp number, payment reference and assignment uploads within 30 days. Your access code will stop working and this cannot be undone.</p>
+            </div>
+            <button id="deleteDataOpen" type="button" class="btn btn-outline btn-sm btn-danger">Request Deletion</button>
+            <form id="deleteDataForm" class="delete-data-form" hidden novalidate>
+              <div class="form-group">
+                <label for="deleteDataNote">Reason <span class="optional-label">(optional)</span></label>
+                <textarea id="deleteDataNote" class="form-input" maxlength="500" rows="3" placeholder="Anything we should know?"></textarea>
+              </div>
+              <label class="remember-row" for="deleteDataConfirm">
+                <input id="deleteDataConfirm" type="checkbox" required>
+                <span>I understand my access and uploads will be permanently removed.</span>
+              </label>
+              <div id="deleteDataMessage" class="form-message" role="status" aria-live="polite" hidden></div>
+              <div class="delete-data-actions">
+                <button id="deleteDataCancel" type="button" class="btn btn-outline btn-sm">Cancel</button>
+                <button id="deleteDataSubmit" type="submit" class="btn btn-primary btn-sm btn-danger-solid">Send Deletion Request</button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </section>

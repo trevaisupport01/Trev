@@ -34,7 +34,11 @@
   const videoModalClose = document.getElementById('videoModalClose');
   const continueLearningButton = document.getElementById('continueLearningButton');
   const STORAGE_KEY = 'trevStudentAccessCode';
+  const DEVICE_KEY = 'trevDeviceId';
+  const REMEMBER_DAYS = 30;
+  const IDLE_SIGN_OUT_MINUTES = 60;
   let currentAccessCode = '';
+  let idleTimer = null;
   let modalTrigger = null;
   let currentProgressData = null;
   let currentOnboardingRatio = 0;
@@ -43,6 +47,44 @@
   let currentAccessLevel = '';
 
   if (!config || !loginForm) return;
+
+  // localStorage can throw in private browsing; the portal must still work.
+  const storage = {
+    get: (key) => { try { return localStorage.getItem(key); } catch (_) { return null; } },
+    set: (key, value) => { try { localStorage.setItem(key, value); } catch (_) { /* ignore */ } },
+    remove: (key) => { try { localStorage.removeItem(key); } catch (_) { /* ignore */ } }
+  };
+
+  // A random per-browser ID lets the server slow down repeated wrong codes.
+  const getDeviceId = () => {
+    let id = storage.get(DEVICE_KEY);
+    if (!id || !/^[A-Za-z0-9_-]{8,64}$/.test(id)) {
+      const bytes = new Uint8Array(12);
+      (window.crypto || {}).getRandomValues ? window.crypto.getRandomValues(bytes) : bytes.forEach((_, i) => { bytes[i] = Math.random() * 256; });
+      id = Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+      storage.set(DEVICE_KEY, id);
+    }
+    return id;
+  };
+
+  const saveRememberedCode = (code) => storage.set(STORAGE_KEY, JSON.stringify({ code, savedAt: Date.now() }));
+
+  const readRememberedCode = () => {
+    const raw = storage.get(STORAGE_KEY);
+    if (!raw) return '';
+    let record;
+    try { record = JSON.parse(raw); } catch (_) { record = null; }
+    // Older versions stored the plain code. Upgrade it and start the 30-day clock now.
+    if (!record || typeof record !== 'object') {
+      saveRememberedCode(raw);
+      return raw;
+    }
+    if (!record.code || Date.now() - Number(record.savedAt || 0) > REMEMBER_DAYS * 86400000) {
+      storage.remove(STORAGE_KEY);
+      return '';
+    }
+    return record.code;
+  };
 
   const endpointIsConfigured = () =>
     /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(config.appsScriptUrl);
@@ -93,12 +135,14 @@
     };
 
     const timeout = window.setTimeout(
-      () => cleanup(new Error('The portal took too long to respond.')),
+      () => cleanup(new Error('The portal is taking longer than usual to respond. Check your internet connection and try again.')),
       30000
     );
 
     window[callbackName] = (data) => cleanup(null, data);
-    script.onerror = () => cleanup(new Error('The portal service could not be reached.'));
+    script.onerror = () => cleanup(new Error(navigator.onLine === false
+      ? 'You appear to be offline. Reconnect to the internet and try again.'
+      : 'We could not reach the portal service. Check your internet connection and try again.'));
 
     const query = new URLSearchParams({ ...parameters, callback: callbackName });
     script.src = `${config.appsScriptUrl}?${query.toString()}`;
@@ -459,7 +503,8 @@
     }
     const storageKey = `trevOnboarding:${registrationId}`;
     let completed = [];
-    try { completed = JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch (_) { completed = []; }
+    try { completed = JSON.parse(storage.get(storageKey) || '[]'); } catch (_) { completed = []; }
+    if (!Array.isArray(completed)) completed = [];
     const list = createElement('div', 'onboarding-list');
 
     items.forEach((item, index) => {
@@ -479,7 +524,7 @@
         const set = new Set(completed);
         if (checkbox.checked) set.add(itemKey); else set.delete(itemKey);
         completed = Array.from(set);
-        localStorage.setItem(storageKey, JSON.stringify(completed));
+        storage.set(storageKey, JSON.stringify(completed));
         label.classList.toggle('completed', checkbox.checked);
         updateProgress();
       });
@@ -664,9 +709,13 @@
     renderGuidelines(response.communityGuidelines || []);
     updateDashboardProgress();
     if (!allPrompts.length || !options.refresh) renderPromptLibrary(response.package.accessLevel);
+    showWelcomeGuide(response.student.registrationId || 'student');
 
-    if (rememberInput.checked) localStorage.setItem(STORAGE_KEY, code);
-    else localStorage.removeItem(STORAGE_KEY);
+    if (!options.refresh) {
+      if (rememberInput.checked) saveRememberedCode(code);
+      else storage.remove(STORAGE_KEY);
+    }
+    resetIdleTimer();
 
     loginPanel.hidden = true;
     dashboard.hidden = false;
@@ -695,16 +744,22 @@
     }
 
     try {
-      const response = await jsonpRequest({ action: 'verify', code });
+      const response = await jsonpRequest({ action: 'verify', code, clientId: getDeviceId() });
       if (!response || !response.valid) {
         const reasonMessages = {
           SUSPENDED: 'This access code has been suspended. Contact TREV AI Support.',
           REJECTED: 'This registration was not approved. Contact TREV AI Support.',
-          PENDING: 'Your registration is still awaiting payment verification.',
+          PENDING: 'Your registration is still awaiting payment verification. Your code will arrive by email and WhatsApp once your payment is confirmed (usually within 10 minutes).',
           EXPIRED: 'Your package access period has ended. Contact TREV AI Support if you need help with your account.',
-          APPROVAL_REVIEW: 'Your access record needs a support review. Contact TREV AI Support with your registration details.'
+          APPROVAL_REVIEW: 'Your access record needs a support review. Contact TREV AI Support with your registration details.',
+          ERASED: 'This account’s data was deleted at the student’s request, so the code no longer works.',
+          RATE_LIMITED: 'Too many incorrect codes were tried from this device. Wait 15 minutes, then try again, or use “Lost your access code?” below.'
         };
-        showMessage(reasonMessages[response && response.status] || 'That access code is invalid. Check it carefully or contact support.');
+        const fallback = response && response.error
+          ? 'The portal service is having a problem right now. Please try again in a few minutes.'
+          : 'We could not find that access code. Check it matches your approval email exactly (for example TREV-PRO-AB12-CD34), or use “Lost your access code?” below.';
+        showMessage(reasonMessages[response && response.status] || fallback);
+        if (response && ['INVALID', 'SUSPENDED', 'REJECTED', 'EXPIRED', 'ERASED'].includes(response.status)) storage.remove(STORAGE_KEY);
         if (options.refresh) {
           dashboard.hidden = true;
           loginPanel.hidden = false;
@@ -725,19 +780,177 @@
     verifyCode(codeInput.value);
   });
 
-  logoutButton.addEventListener('click', () => {
-    localStorage.removeItem(STORAGE_KEY);
+  const signOut = (message) => {
+    storage.remove(STORAGE_KEY);
+    window.clearTimeout(idleTimer);
+    idleTimer = null;
     currentAccessCode = '';
     codeInput.value = '';
     rememberInput.checked = false;
-    closeAssignmentModal();
-    closeVideoModal();
+    if (!assignmentModal.hidden) closeAssignmentModal();
+    if (!videoModal.hidden) closeVideoModal();
     dashboard.hidden = true;
     loginPanel.hidden = false;
-    loginMessage.hidden = true;
+    if (message) showMessage(message, 'success');
+    else loginMessage.hidden = true;
     codeInput.focus();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Sessions that were not "remembered" end after an hour without activity,
+  // so a shared or public computer does not stay signed in.
+  function resetIdleTimer() {
+    window.clearTimeout(idleTimer);
+    if (!currentAccessCode || rememberInput.checked) return;
+    idleTimer = window.setTimeout(() => {
+      signOut(`You were signed out after ${IDLE_SIGN_OUT_MINUTES} minutes of inactivity. Enter your code to continue.`);
+    }, IDLE_SIGN_OUT_MINUTES * 60000);
+  }
+  let lastActivity = 0;
+  ['click', 'keydown', 'scroll', 'touchstart'].forEach((type) => {
+    window.addEventListener(type, () => {
+      if (!idleTimer || Date.now() - lastActivity < 30000) return;
+      lastActivity = Date.now();
+      resetIdleTimer();
+    }, { passive: true });
   });
+
+  logoutButton.addEventListener('click', () => signOut('You have signed out.'));
+
+  // First-visit welcome guide, hidden for good once dismissed.
+  const welcome = document.getElementById('portalWelcome');
+  let welcomeKey = '';
+  function showWelcomeGuide(registrationId) {
+    if (!welcome) return;
+    welcomeKey = `trevWelcomeDismissed:${registrationId}`;
+    welcome.hidden = storage.get(welcomeKey) === '1';
+  }
+  if (welcome) {
+    document.getElementById('portalWelcomeDismiss').addEventListener('click', () => {
+      welcome.hidden = true;
+      if (welcomeKey) storage.set(welcomeKey, '1');
+    });
+    welcome.querySelectorAll('[data-welcome-target]').forEach((button) => {
+      button.addEventListener('click', () => scrollToPortalSection(button.dataset.welcomeTarget));
+    });
+  }
+
+  // "Lost your access code?" — the server always gives the same reply so
+  // nobody can use this form to check who is enrolled.
+  const lostToggle = document.getElementById('lostCodeToggle');
+  const lostForm = document.getElementById('lostCodeForm');
+  const lostEmail = document.getElementById('lostCodeEmail');
+  const lostMessage = document.getElementById('lostCodeMessage');
+  const lostSubmit = document.getElementById('lostCodeSubmit');
+  const showLostMessage = (text, type = 'error') => {
+    lostMessage.textContent = text;
+    lostMessage.className = `form-message ${type}`;
+    lostMessage.hidden = false;
+  };
+  if (lostToggle && lostForm) {
+    lostToggle.addEventListener('click', () => {
+      const open = lostForm.hidden;
+      lostForm.hidden = !open;
+      lostToggle.setAttribute('aria-expanded', String(open));
+      if (open) lostEmail.focus();
+    });
+    lostEmail.addEventListener('input', () => {
+      lostEmail.removeAttribute('aria-invalid');
+      lostMessage.hidden = true;
+    });
+    lostForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const email = lostEmail.value.trim().toLowerCase();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        lostEmail.setAttribute('aria-invalid', 'true');
+        showLostMessage('Enter the full email address you registered with, such as you@example.com.');
+        lostEmail.focus();
+        return;
+      }
+      if (!endpointIsConfigured()) {
+        showLostMessage('This feature is not available right now. Please contact support on WhatsApp.');
+        return;
+      }
+      lostSubmit.disabled = true;
+      lostSubmit.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>Sending…</span>';
+      try {
+        await fetch(config.appsScriptUrl, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: new URLSearchParams({ action: 'resendcode', email }).toString()
+        });
+        showLostMessage('If that email matches an approved enrollment, your access code is on its way. Check your inbox and spam folder in the next few minutes.', 'success');
+        lostForm.reset();
+      } catch (_) {
+        showLostMessage('We could not send the request. Check your internet connection and try again.');
+      } finally {
+        lostSubmit.disabled = false;
+        lostSubmit.textContent = 'Email My Code';
+      }
+    });
+  }
+
+  // "Delete my data" — sends a request; the admin completes it from the Sheet.
+  const deleteOpen = document.getElementById('deleteDataOpen');
+  const deleteForm = document.getElementById('deleteDataForm');
+  const deleteConfirm = document.getElementById('deleteDataConfirm');
+  const deleteMessage = document.getElementById('deleteDataMessage');
+  const deleteSubmit = document.getElementById('deleteDataSubmit');
+  const showDeleteMessage = (text, type = 'error') => {
+    deleteMessage.textContent = text;
+    deleteMessage.className = `form-message ${type}`;
+    deleteMessage.hidden = false;
+  };
+  if (deleteOpen && deleteForm) {
+    deleteOpen.addEventListener('click', () => {
+      deleteForm.hidden = false;
+      deleteOpen.hidden = true;
+      deleteConfirm.focus();
+    });
+    document.getElementById('deleteDataCancel').addEventListener('click', () => {
+      deleteForm.reset();
+      deleteForm.hidden = true;
+      deleteMessage.hidden = true;
+      deleteOpen.hidden = false;
+      deleteOpen.focus();
+    });
+    deleteForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!deleteConfirm.checked) {
+        showDeleteMessage('Tick the box to confirm you understand this cannot be undone.');
+        deleteConfirm.focus();
+        return;
+      }
+      if (!currentAccessCode) {
+        showDeleteMessage('Your session has ended. Sign in again, then retry.');
+        return;
+      }
+      deleteSubmit.disabled = true;
+      deleteSubmit.innerHTML = '<span class="spinner" aria-hidden="true"></span><span>Sending…</span>';
+      try {
+        const result = await jsonpRequest({
+          action: 'datarequest',
+          code: currentAccessCode,
+          note: document.getElementById('deleteDataNote').value.trim().slice(0, 500)
+        });
+        if (result && result.ok) {
+          showDeleteMessage(`Request received (${result.requestId}). We have emailed you a confirmation and will complete it within 30 days.`, 'success');
+          deleteSubmit.hidden = true;
+          document.getElementById('deleteDataCancel').textContent = 'Close';
+          return;
+        }
+        showDeleteMessage(result && result.status === 'RATE_LIMITED'
+          ? 'You have already sent this request. We will email you once it is complete.'
+          : 'We could not send your request. Please contact support on WhatsApp.');
+      } catch (error) {
+        showDeleteMessage(error.message || 'We could not send your request. Try again shortly.');
+      } finally {
+        deleteSubmit.disabled = false;
+        if (!deleteSubmit.hidden) deleteSubmit.textContent = 'Send Deletion Request';
+      }
+    });
+  }
 
   assignmentModalClose.addEventListener('click', closeAssignmentModal);
   assignmentModal.querySelector('[data-close-assignment-modal]').addEventListener('click', closeAssignmentModal);
@@ -764,7 +977,7 @@
   promptCategory.addEventListener('change', filterPrompts);
   promptLoadMore.addEventListener('click', () => drawPromptResults(false));
 
-  const savedCode = localStorage.getItem(STORAGE_KEY);
+  const savedCode = readRememberedCode();
   if (savedCode) {
     codeInput.value = savedCode;
     rememberInput.checked = true;

@@ -18,6 +18,43 @@ The website pages and backend code are complete, but **registration will not wor
 9. The student enters the code on `portal.html`, downloads package materials directly, and uploads assignments without using WhatsApp.
 10. Submissions are stored privately in your Google Drive, logged in the Sheet, and emailed to you for review.
 
+## November 2026 update — launch checklist features
+
+This update adds: lost-code emails, a "Delete my data" request button, sign-in rate limiting, daily backups, an error log, a 404 page, Vercel analytics, and clearer form errors.
+
+### 1. Update the Apps Script backend (required)
+
+The website changes go live automatically through Vercel, but the backend must be updated by hand:
+
+1. Open the Google Sheet → **Extensions → Apps Script**.
+2. Select everything in `Code.gs` and delete it.
+3. Paste in the full contents of `apps-script/trev-registration-backend.gs` from this repository. Save.
+4. **Deploy → Manage deployments → pencil (Edit) → Version: New version → Deploy.** Keep the same deployment so the `/exec` URL does not change.
+5. Reload the Google Sheet. You will see a new **TREV Backups** menu.
+6. Choose **TREV Backups → Install daily backup (2 AM)**, then **TREV Backups → Back up now** to make the first copy. Approve Google's permission prompt if asked.
+
+The **Data Requests** and **Error Log** tabs are created automatically the first time they are needed.
+
+### 2. Turn on analytics in Vercel (optional, free)
+
+Vercel dashboard → this project → **Analytics** → **Enable**. Page-view counts appear there within a few minutes. No cookies are used.
+
+### 3. New daily tasks
+
+- **Deletion requests:** you get an email titled "Data deletion request". Select the student's row in **Registrations**, then **TREV Registration → Erase selected student's personal data**. This anonymises the row, moves their uploads to the Drive bin and emails the student. Remove them from **Certificates** and **Attendance** by hand if needed.
+- **Error Log tab:** check it now and then. Rows marked `browser` came from a visitor's browser; rows marked `server` came from the Apps Script.
+- **Lost codes:** students can now get their code re-emailed from the portal sign-in page, so you should get fewer WhatsApp requests. It only works for APPROVED rows and only sends to the email on file.
+
+### Limits now in place
+
+| What | Limit |
+|---|---|
+| Wrong access codes from one device | 8 per 15 minutes, then a 15-minute wait |
+| Wrong access codes across the whole site | 600 per 10 minutes (only reached during an attack) |
+| Lost-code emails | 3 per email address per hour, 40 per hour in total |
+| Registrations from one email | 5 per hour |
+| Deletion requests from one code | 3 per day |
+
 ## Part 1 — Install the backend in Google Sheets
 
 You can use a new Google Sheet or the existing Sheet connected to your waitlist.
