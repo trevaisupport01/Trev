@@ -1931,15 +1931,17 @@ function isRateLimited_(key, rule) {
 }
 
 function verifyWithRateLimit_(rawCode, rawClientId) {
-  var device = clean_(rawClientId, 64).replace(/[^A-Za-z0-9_-]/g, '') || 'anonymous';
-  var deviceKey = 'loginfail:' + device;
-  if (rateCount_(deviceKey) >= RATE_LIMITS.LOGIN_FAILS_PER_DEVICE.limit ||
+  // Older cached copies of the portal send no device ID. They get only the
+  // global limit, so they never share one bucket and lock each other out.
+  var device = clean_(rawClientId, 64).replace(/[^A-Za-z0-9_-]/g, '');
+  var deviceKey = device ? 'loginfail:' + device : '';
+  if ((deviceKey && rateCount_(deviceKey) >= RATE_LIMITS.LOGIN_FAILS_PER_DEVICE.limit) ||
       rateCount_('loginfail:global') >= RATE_LIMITS.LOGIN_FAILS_GLOBAL.limit) {
     return { valid: false, status: 'RATE_LIMITED' };
   }
   var result = verifyAccessCode_(rawCode);
   if (!result.valid && result.status === 'INVALID') {
-    bumpRate_(deviceKey, RATE_LIMITS.LOGIN_FAILS_PER_DEVICE);
+    if (deviceKey) bumpRate_(deviceKey, RATE_LIMITS.LOGIN_FAILS_PER_DEVICE);
     bumpRate_('loginfail:global', RATE_LIMITS.LOGIN_FAILS_GLOBAL);
   }
   return result;

@@ -22,9 +22,9 @@ The website pages and backend code are complete, but **registration will not wor
 
 This update adds: lost-code emails, a "Delete my data" request button, sign-in rate limiting, daily backups, an error log, a 404 page, Vercel analytics, and clearer form errors.
 
-### 1. Update the Apps Script backend (required)
+### 1. Update the Apps Script backend (required, same day as the website)
 
-The website changes go live automatically through Vercel, but the backend must be updated by hand:
+The website changes go live automatically through Vercel, but the backend must be updated by hand. Do this right after the website update is live: until then, "Lost your access code?" tells students an email is coming but nothing is sent, and "Delete my data" shows an error.
 
 1. Open the Google Sheet → **Extensions → Apps Script**.
 2. Select everything in `Code.gs` and delete it.
